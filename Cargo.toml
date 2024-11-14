@@ -1,0 +1,19 @@
+cargo-features = ["edition2024", "codegen-backend"]
+
+[profile.dev]
+codegen-backend = "cranelift"
+
+[package]
+name = "loxrs"
+version = "0.1.0"
+authors = ["Jonathan Lopez <jonathanglopez@gmail.com>"]
+license = "MIT"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.28.1"
+ratatui = "0.29.0"
+color-eyre = "0.6.3"
+
+[lints.clippy]
+pedantic = "warn"
