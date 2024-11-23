@@ -1,11 +1,22 @@
-pub use app::App;
+use reedline::{DefaultPrompt, Reedline, Signal};
 
-pub mod app;
+pub fn main() {
+    let mut line_editor = Reedline::create();
+    let prompt = DefaultPrompt::default();
 
-fn main() -> color_eyre::Result<()> {
-    color_eyre::install()?;
-    let terminal = ratatui::init();
-    let result = App::new().run(terminal);
-    ratatui::restore();
-    result
+    loop {
+        let sig = line_editor.read_line(&prompt);
+        match sig {
+            Ok(Signal::Success(buffer)) => {
+                println!("We processed: {}", buffer);
+            }
+            Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
+                println!("\nAborted!");
+                break;
+            }
+            x => {
+                println!("Event: {:?}", x);
+            }
+        }
+    }
 }

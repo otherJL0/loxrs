@@ -3,6 +3,10 @@ cargo-features = ["edition2024", "codegen-backend"]
 [profile.dev]
 codegen-backend = "cranelift"
 
+[profile.dev.package]
+insta.opt-level = 3
+similar.opt-level = 3
+
 [package]
 name = "loxrs"
 version = "0.1.0"
@@ -11,9 +15,11 @@ license = "MIT"
 edition = "2024"
 
 [dependencies]
-crossterm = "0.28.1"
-ratatui = "0.29.0"
-color-eyre = "0.6.3"
+reedline = "0.37.0"
 
 [lints.clippy]
 pedantic = "warn"
+
+[dev-dependencies]
+insta = "1.41.1"
+nextest = "0.1.0"
