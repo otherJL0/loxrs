@@ -1,5 +1,6 @@
 use reedline::{DefaultPrompt, DefaultPromptSegment, Reedline, Signal};
 use std::env;
+use std::fs;
 
 fn repl() {
     let mut line_editor = Reedline::create();
@@ -26,7 +27,11 @@ fn repl() {
 }
 
 fn read_file(lox_file: &str) {
-    println!("Expected file: {lox_file}");
+    println!("Reading file: {lox_file}");
+    match fs::read_to_string(lox_file) {
+        Ok(contents) => println!("{contents}"),
+        _ => eprintln!("cannot read file"),
+    }
 }
 
 pub fn main() {
