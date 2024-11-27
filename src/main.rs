@@ -1,3 +1,5 @@
+pub mod token;
+
 use reedline::{DefaultPrompt, DefaultPromptSegment, Reedline, Signal};
 use std::env;
 use std::fs;
