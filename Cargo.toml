@@ -1,4 +1,4 @@
-cargo-features = ["edition2024", "codegen-backend"]
+cargo-features = ["codegen-backend"]
 
 [profile.dev]
 codegen-backend = "cranelift"
@@ -15,10 +15,11 @@ license = "MIT"
 edition = "2024"
 
 [dependencies]
-reedline = "0.37.0"
+reedline = "0.38.0"
 
 [lints.clippy]
 pedantic = "warn"
+style = "warn"
 
 [dev-dependencies]
 # insta = "1.41.1"
