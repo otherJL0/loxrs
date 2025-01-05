@@ -24,6 +24,12 @@ pub enum TokenType {
     StarEqual,
     Slash,
     SlashEqual,
+    Bang,
+    BangEqual,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
 
     Identifier,
     String,
@@ -45,18 +51,32 @@ pub enum TokenType {
     True,
     Var,
     While,
+
+    Eof,
 }
 
+#[derive(Debug)]
+pub enum LiteralValue {
+    Text(String),
+    Number(f64),
+}
+
+#[allow(dead_code)]
+#[derive(Debug)]
 pub struct Token {
-    token_type: TokenType,
-    lexeme: String,
-    literal: String,
-    line: usize,
+    pub token_type: TokenType,
+    pub lexeme: String,
+    pub literal: Option<LiteralValue>,
+    pub line: usize,
 }
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?} {} {}", self.token_type, self.lexeme, self.literal)
+        write!(
+            f,
+            "{:?} {} {:?}",
+            self.token_type, self.lexeme, self.literal
+        )
     }
 }
 
@@ -79,7 +99,7 @@ mod tests {
                 Token {
                     token_type: actual.0,
                     lexeme: actual.1.to_string(),
-                    literal: actual.1.to_string(),
+                    literal: Some(LiteralValue::Text(actual.1.to_string())),
                     line: 1
                 }
                 .to_string(),
