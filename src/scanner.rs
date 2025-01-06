@@ -1,7 +1,7 @@
 use crate::token::{LiteralValue, Token, TokenType};
 
 #[derive(Debug)]
-struct Scanner {
+pub struct Scanner {
     pub source: Vec<char>,
     pub tokens: Vec<Token>,
     line: usize,
@@ -9,7 +9,12 @@ struct Scanner {
     start: usize,
 }
 
+fn is_identifier_char(c: char) -> bool {
+    c.is_ascii_alphabetic() || c == '_'
+}
+
 impl Scanner {
+    #[must_use]
     pub fn new(source: String) -> Scanner {
         Scanner {
             source: source.chars().collect(),
@@ -106,9 +111,8 @@ impl Scanner {
     }
 
     fn scan_identifier(&mut self) {
-        let mut c = self.peek();
-        while c.is_alphabetic() || c == '_' {
-            c = self.advance();
+        while is_identifier_char(self.peek()) {
+            _ = self.advance();
         }
         let text = String::from_iter(&self.source[self.start..self.current]);
         let token_type = match text.as_str() {
@@ -241,6 +245,5 @@ mod tests {
         assert_eq!(scanner.current, 0);
         assert_eq!(scanner.start, 0);
         assert!(scanner.tokens.is_empty());
-        assert_eq!(scanner.source, source.to_string());
     }
 }
