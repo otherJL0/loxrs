@@ -5,7 +5,7 @@ trait ExprTrait {
 }
 
 #[derive(Debug)]
-enum Expr {
+pub enum Expr {
     Binary(BinaryExpr),
     Grouping(GroupingExpr),
     Literal(LiteralExpr),
@@ -19,30 +19,65 @@ impl ExprTrait for Expr {
 }
 
 #[derive(Debug)]
-struct BinaryExpr {
+pub struct BinaryExpr {
     left: Box<Expr>,
     operator: Token,
     right: Box<Expr>,
 }
+impl BinaryExpr {
+    pub fn new(left: Box<Expr>, operator: Token, right: Box<Expr>) -> BinaryExpr {
+        BinaryExpr {
+            left,
+            operator,
+            right,
+        }
+    }
+}
 #[derive(Debug)]
-struct GroupingExpr {
+pub struct GroupingExpr {
     expr: Box<Expr>,
 }
-#[derive(Debug)]
-struct LiteralExpr {
-    value: Option<LiteralValue>,
+
+impl GroupingExpr {
+    pub fn new(expr: Box<Expr>) -> GroupingExpr {
+        GroupingExpr { expr }
+    }
 }
 #[derive(Debug)]
-struct UnaryExpr {
+pub struct LiteralExpr {
+    value: Option<LiteralValue>,
+}
+
+impl LiteralExpr {
+    pub fn new(value: Option<LiteralValue>) -> LiteralExpr {
+        LiteralExpr { value }
+    }
+}
+#[derive(Debug)]
+pub struct UnaryExpr {
     operator: Token,
     right: Box<Expr>,
+}
+
+impl UnaryExpr {
+    pub fn new(operator: Token, right: Box<Expr>) -> UnaryExpr {
+        UnaryExpr { operator, right }
+    }
 }
 
 trait Visitor {
     fn visit(&self, expr: &Expr) -> String;
 }
 
-struct AstPrinter {}
+#[derive(Default)]
+pub struct AstPrinter {}
+
+impl AstPrinter {
+    #[must_use]
+    pub fn print(&self, expr: &Expr) -> String {
+        expr.accept(self)
+    }
+}
 
 impl Visitor for AstPrinter {
     fn visit(&self, expr: &Expr) -> String {

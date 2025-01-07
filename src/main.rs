@@ -1,7 +1,10 @@
+pub mod parser;
 pub mod repr;
 pub mod scanner;
 pub mod token;
 
+use crate::parser::Parser;
+use crate::repr::AstPrinter;
 use crate::scanner::Scanner;
 use reedline::{DefaultPrompt, DefaultPromptSegment, Reedline, Signal};
 use std::env;
@@ -21,9 +24,11 @@ fn repl() {
                 println!("We processed: {buffer}");
                 let mut scanner = Scanner::new(buffer);
                 scanner.scan_tokens();
-                for token in scanner.tokens {
-                    println!("{token:?}");
-                }
+                let mut parser = Parser::new(scanner.tokens);
+                let expr = parser.parse();
+                let ast_printer = AstPrinter::default();
+                let ast_string = ast_printer.print(&expr);
+                println!("{ast_string}");
             }
             Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
                 println!("\nAborted!");
