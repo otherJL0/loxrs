@@ -2,6 +2,7 @@ pub mod parser;
 pub mod repr;
 pub mod scanner;
 pub mod token;
+pub mod trait_extensions;
 
 use crate::parser::Parser;
 use crate::repr::AstPrinter;
