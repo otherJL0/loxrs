@@ -25,6 +25,7 @@ pub struct BinaryExpr {
     right: Box<Expr>,
 }
 impl BinaryExpr {
+    #[must_use]
     pub fn new(left: Box<Expr>, operator: Token, right: Box<Expr>) -> BinaryExpr {
         BinaryExpr {
             left,
@@ -39,6 +40,7 @@ pub struct GroupingExpr {
 }
 
 impl GroupingExpr {
+    #[must_use]
     pub fn new(expr: Box<Expr>) -> GroupingExpr {
         GroupingExpr { expr }
     }
@@ -49,6 +51,7 @@ pub struct LiteralExpr {
 }
 
 impl LiteralExpr {
+    #[must_use]
     pub fn new(value: Option<LiteralValue>) -> LiteralExpr {
         LiteralExpr { value }
     }
@@ -60,6 +63,7 @@ pub struct UnaryExpr {
 }
 
 impl UnaryExpr {
+    #[must_use]
     pub fn new(operator: Token, right: Box<Expr>) -> UnaryExpr {
         UnaryExpr { operator, right }
     }

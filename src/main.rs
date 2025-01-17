@@ -31,12 +31,12 @@ fn repl() {
                 let ast_string = ast_printer.print(&expr);
                 println!("{ast_string}");
             }
-            Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
+            Ok(Signal::CtrlD | Signal::CtrlC) => {
                 println!("\nAborted!");
                 break;
             }
             x => {
-                println!("Event: {:?}", x);
+                println!("Event: {x:?}");
             }
         }
     }
