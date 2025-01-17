@@ -1,3 +1,4 @@
+#![feature(let_chains)]
 pub mod parser;
 pub mod repr;
 pub mod scanner;
