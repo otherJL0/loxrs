@@ -9,8 +9,9 @@ use std::env;
 use std::fs;
 
 fn repl() {
+    println!("Lox Interpreter");
     let history = Box::new(
-        FileBackedHistory::with_file(100, "lox_repl_history.txt".into())
+        FileBackedHistory::with_file(100, "lox_repl.log".into())
             .expect("Error setting up history with file"),
     );
     let mut line_editor = Reedline::create().with_history(history);
@@ -22,10 +23,14 @@ fn repl() {
     loop {
         match line_editor.read_line(&prompt) {
             Ok(Signal::Success(buffer)) => {
-                println!("We processed: {buffer}");
                 let mut lexer = Lexer::new(&buffer);
-                for token in lexer.scan_tokens() {
-                    println!("{token:?}");
+                match lexer.scan_tokens() {
+                    Ok(tokens) => {
+                        for token in tokens {
+                            println!("{token:?}");
+                        }
+                    }
+                    Err(err) => println!("{err:?}"),
                 }
             }
             Ok(Signal::CtrlD | Signal::CtrlC) => {

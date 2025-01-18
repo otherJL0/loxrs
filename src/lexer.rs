@@ -1,7 +1,26 @@
+use core::fmt;
+
 use crate::{
     token::{LiteralValue, Token, TokenType},
     trait_extensions::IdentifierChar,
 };
+
+#[derive(Debug, Clone)]
+pub struct InvalidCharacterError {
+    invalid_char: char,
+    column: usize,
+    line: usize,
+}
+
+impl fmt::Display for InvalidCharacterError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "invalid character detected: {} at line {}, column {}",
+            self.invalid_char, self.line, self.column
+        )
+    }
+}
 
 #[derive(Debug)]
 pub struct Lexer<'a> {
@@ -37,10 +56,13 @@ impl<'a> Lexer<'a> {
         Some(c)
     }
 
-    pub fn scan_tokens(&mut self) -> &[Token] {
+    /// # Errors
+    ///
+    /// Will return `Err` if an invalid character is detected
+    pub fn scan_tokens(&mut self) -> Result<&[Token], InvalidCharacterError> {
         while !self.is_at_end() {
             self.start = self.current;
-            self.scan_token();
+            self.scan_token()?;
         }
         self.tokens.push(Token {
             token_type: TokenType::Eof,
@@ -48,7 +70,7 @@ impl<'a> Lexer<'a> {
             literal: None,
             line: self.line,
         });
-        &self.tokens
+        Ok(&self.tokens)
     }
 
     fn add_token(&mut self, token_type: TokenType, literal: Option<LiteralValue<'a>>) {
@@ -140,7 +162,7 @@ impl<'a> Lexer<'a> {
         self.add_token(token_type, Some(LiteralValue::Text(text)));
     }
 
-    fn scan_token(&mut self) {
+    fn scan_token(&mut self) -> Result<(), InvalidCharacterError> {
         if let Some(c) = self.advance() {
             match c {
                 '(' => self.add_token(TokenType::LeftParen, None),
@@ -231,11 +253,16 @@ impl<'a> Lexer<'a> {
                     } else if c.is_ascii_identifier_char() {
                         self.scan_identifier();
                     } else {
-                        unreachable!("TODO");
+                        return Err(InvalidCharacterError {
+                            invalid_char: c,
+                            column: self.start,
+                            line: self.line,
+                        });
                     }
                 }
             }
         }
+        Ok(())
     }
 }
 
