@@ -228,7 +228,7 @@ impl<'a> Lexer<'a> {
                 _ => {
                     if c.is_ascii_digit() {
                         self.scan_number();
-                    } else if c.is_ascii_alphabetic() || c == '_' {
+                    } else if c.is_ascii_identifier_char() {
                         self.scan_identifier();
                     } else {
                         unreachable!("TODO");
