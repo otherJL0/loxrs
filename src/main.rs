@@ -1,9 +1,9 @@
 #![feature(let_chains)]
-pub mod scanner;
+pub mod lexer;
 pub mod token;
 pub mod trait_extensions;
 
-use crate::scanner::Scanner;
+use crate::lexer::Lexer;
 use reedline::{DefaultPrompt, DefaultPromptSegment, Reedline, Signal};
 use std::env;
 use std::fs;
@@ -19,15 +19,10 @@ fn repl() {
         match line_editor.read_line(&prompt) {
             Ok(Signal::Success(buffer)) => {
                 println!("We processed: {buffer}");
-                let mut scanner = Scanner::new(&buffer);
-                for token in scanner.scan_tokens() {
+                let mut lexer = Lexer::new(&buffer);
+                for token in lexer.scan_tokens() {
                     println!("{token:?}");
                 }
-                // let mut parser = Parser::new(scanner.tokens);
-                // let expr = parser.parse();
-                // let ast_printer = AstPrinter::default();
-                // let ast_string = ast_printer.print(&expr);
-                // println!("{ast_string}");
             }
             Ok(Signal::CtrlD | Signal::CtrlC) => {
                 println!("\nAborted!");

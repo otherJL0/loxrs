@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct Scanner<'a> {
+pub struct Lexer<'a> {
     pub source: &'a str,
     pub tokens: Vec<Token<'a>>,
     line: usize,
@@ -12,10 +12,10 @@ pub struct Scanner<'a> {
     start: usize,
 }
 
-impl<'a> Scanner<'a> {
+impl<'a> Lexer<'a> {
     #[must_use]
-    pub fn new(source: &'a str) -> Scanner<'a> {
-        Scanner {
+    pub fn new(source: &'a str) -> Lexer<'a> {
+        Lexer {
             source,
             tokens: vec![],
             line: 1,
@@ -244,12 +244,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn new_scanner_instance() {
+    fn new_lexer_instance() {
         let source = "var lang = \"lox\";";
-        let scanner = Scanner::new(source);
-        assert_eq!(scanner.line, 1);
-        assert_eq!(scanner.current, 0);
-        assert_eq!(scanner.start, 0);
-        assert!(scanner.tokens.is_empty());
+        let lexer = Lexer::new(source);
+        assert_eq!(lexer.line, 1);
+        assert_eq!(lexer.current, 0);
+        assert_eq!(lexer.start, 0);
+        assert!(lexer.tokens.is_empty());
     }
 }
