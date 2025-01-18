@@ -4,17 +4,17 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct Scanner {
-    pub source: String,
+pub struct Scanner<'a> {
+    pub source: &'a str,
     pub tokens: Vec<Token>,
     line: usize,
     current: usize,
     start: usize,
 }
 
-impl Scanner {
+impl<'a> Scanner<'a> {
     #[must_use]
-    pub fn new(source: String) -> Scanner {
+    pub fn new(source: &'a str) -> Scanner<'a> {
         Scanner {
             source,
             tokens: vec![],
@@ -245,7 +245,7 @@ mod tests {
     #[test]
     fn new_scanner_instance() {
         let source = "var lang = \"lox\";";
-        let scanner = Scanner::new(source.to_string());
+        let scanner = Scanner::new(source);
         assert_eq!(scanner.line, 1);
         assert_eq!(scanner.current, 0);
         assert_eq!(scanner.start, 0);

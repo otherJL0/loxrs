@@ -20,17 +20,19 @@ fn repl() {
     );
 
     loop {
-        let sig = line_editor.read_line(&prompt);
-        match sig {
+        match line_editor.read_line(&prompt) {
             Ok(Signal::Success(buffer)) => {
                 println!("We processed: {buffer}");
-                let mut scanner = Scanner::new(buffer);
+                let mut scanner = Scanner::new(&buffer);
                 scanner.scan_tokens();
-                let mut parser = Parser::new(scanner.tokens);
-                let expr = parser.parse();
-                let ast_printer = AstPrinter::default();
-                let ast_string = ast_printer.print(&expr);
-                println!("{ast_string}");
+                for token in scanner.tokens {
+                    println!("{token:?}");
+                }
+                // let mut parser = Parser::new(scanner.tokens);
+                // let expr = parser.parse();
+                // let ast_printer = AstPrinter::default();
+                // let ast_string = ast_printer.print(&expr);
+                // println!("{ast_string}");
             }
             Ok(Signal::CtrlD | Signal::CtrlC) => {
                 println!("\nAborted!");
