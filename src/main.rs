@@ -1,5 +1,6 @@
 #![feature(let_chains)]
 pub mod lexer;
+pub mod repr;
 pub mod token;
 pub mod trait_extensions;
 
