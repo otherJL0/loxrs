@@ -56,21 +56,21 @@ pub enum TokenType {
 }
 
 #[derive(Clone, Debug)]
-pub enum LiteralValue {
-    Text(String),
+pub enum LiteralValue<'a> {
+    Text(&'a str),
     Number(f64),
     Bool(bool),
 }
 
 #[derive(Clone, Debug)]
-pub struct Token {
+pub struct Token<'a> {
     pub token_type: TokenType,
-    pub lexeme: String,
-    pub literal: Option<LiteralValue>,
+    pub lexeme: &'a str,
+    pub literal: Option<LiteralValue<'a>>,
     pub line: usize,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for Token<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -98,8 +98,8 @@ mod tests {
             assert_eq!(
                 Token {
                     token_type: actual.0,
-                    lexeme: actual.1.to_string(),
-                    literal: Some(LiteralValue::Text(actual.1.to_string())),
+                    lexeme: actual.1,
+                    literal: Some(LiteralValue::Text(actual.1)),
                     line: 1
                 }
                 .to_string(),

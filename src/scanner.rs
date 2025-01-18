@@ -6,7 +6,7 @@ use crate::{
 #[derive(Debug)]
 pub struct Scanner<'a> {
     pub source: &'a str,
-    pub tokens: Vec<Token>,
+    pub tokens: Vec<Token<'a>>,
     line: usize,
     current: usize,
     start: usize,
@@ -44,15 +44,15 @@ impl<'a> Scanner<'a> {
         }
         self.tokens.push(Token {
             token_type: TokenType::Eof,
-            lexeme: String::default(),
+            lexeme: "",
             literal: None,
             line: self.line,
         });
         &self.tokens
     }
 
-    fn add_token(&mut self, token_type: TokenType, literal: Option<LiteralValue>) {
-        let lexeme = self.source[self.start..self.current].to_string();
+    fn add_token(&mut self, token_type: TokenType, literal: Option<LiteralValue<'a>>) {
+        let lexeme = &self.source[self.start..self.current];
         self.tokens.push(Token {
             token_type,
             lexeme,
@@ -79,7 +79,7 @@ impl<'a> Scanner<'a> {
             }
             self.current += 1;
         }
-        let value = self.source[self.start + 1..self.current].to_string();
+        let value = &self.source[self.start + 1..self.current];
         _ = self.advance();
         self.add_token(TokenType::String, Some(LiteralValue::Text(value)));
     }
@@ -117,8 +117,8 @@ impl<'a> Scanner<'a> {
             }
             _ = self.advance();
         }
-        let text = self.source[self.start..self.current].to_string();
-        let token_type = match text.as_str() {
+        let text = &self.source[self.start..self.current];
+        let token_type = match text {
             "and" => TokenType::And,
             "class" => TokenType::Class,
             "else" => TokenType::Else,
