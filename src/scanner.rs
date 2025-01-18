@@ -37,7 +37,7 @@ impl<'a> Scanner<'a> {
         Some(c)
     }
 
-    pub fn scan_tokens(&mut self) {
+    pub fn scan_tokens(&mut self) -> &[Token] {
         while !self.is_at_end() {
             self.start = self.current;
             self.scan_token();
@@ -48,6 +48,7 @@ impl<'a> Scanner<'a> {
             literal: None,
             line: self.line,
         });
+        &self.tokens
     }
 
     fn add_token(&mut self, token_type: TokenType, literal: Option<LiteralValue>) {

@@ -24,8 +24,7 @@ fn repl() {
             Ok(Signal::Success(buffer)) => {
                 println!("We processed: {buffer}");
                 let mut scanner = Scanner::new(&buffer);
-                scanner.scan_tokens();
-                for token in scanner.tokens {
+                for token in scanner.scan_tokens() {
                     println!("{token:?}");
                 }
                 // let mut parser = Parser::new(scanner.tokens);
