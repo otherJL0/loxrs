@@ -4,12 +4,16 @@ pub mod token;
 pub mod trait_extensions;
 
 use crate::lexer::Lexer;
-use reedline::{DefaultPrompt, DefaultPromptSegment, Reedline, Signal};
+use reedline::{DefaultPrompt, DefaultPromptSegment, FileBackedHistory, Reedline, Signal};
 use std::env;
 use std::fs;
 
 fn repl() {
-    let mut line_editor = Reedline::create();
+    let history = Box::new(
+        FileBackedHistory::with_file(100, "lox_repl_history.txt".into())
+            .expect("Error setting up history with file"),
+    );
+    let mut line_editor = Reedline::create().with_history(history);
     let prompt = DefaultPrompt::new(
         DefaultPromptSegment::Basic("〈".to_string()),
         DefaultPromptSegment::Empty,
