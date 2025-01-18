@@ -5,7 +5,7 @@ trait ExprTrait {
 }
 
 #[derive(Debug)]
-enum Expr<'a> {
+pub enum Expr<'a> {
     Binary(BinaryExpr<'a>),
     Grouping(GroupingExpr<'a>),
     Literal(LiteralExpr<'a>),
@@ -19,13 +19,14 @@ impl ExprTrait for Expr<'_> {
 }
 
 #[derive(Debug)]
-struct BinaryExpr<'a> {
+pub struct BinaryExpr<'a> {
     left: Box<Expr<'a>>,
     operator: Token<'a>,
     right: Box<Expr<'a>>,
 }
 
 impl<'a> BinaryExpr<'a> {
+    #[must_use]
     pub fn new(left: Expr<'a>, operator: Token<'a>, right: Expr<'a>) -> BinaryExpr<'a> {
         BinaryExpr {
             left: Box::new(left),
@@ -36,11 +37,12 @@ impl<'a> BinaryExpr<'a> {
 }
 
 #[derive(Debug)]
-struct GroupingExpr<'a> {
+pub struct GroupingExpr<'a> {
     expr: Box<Expr<'a>>,
 }
 
 impl<'a> GroupingExpr<'a> {
+    #[must_use]
     pub fn new(expr: Expr<'a>) -> GroupingExpr<'a> {
         GroupingExpr {
             expr: Box::new(expr),
@@ -48,22 +50,24 @@ impl<'a> GroupingExpr<'a> {
     }
 }
 #[derive(Debug)]
-struct LiteralExpr<'a> {
+pub struct LiteralExpr<'a> {
     value: Option<LiteralValue<'a>>,
 }
 
 impl<'a> LiteralExpr<'a> {
+    #[must_use]
     pub fn new(value: Option<LiteralValue<'a>>) -> LiteralExpr<'a> {
         LiteralExpr { value }
     }
 }
 #[derive(Debug)]
-struct UnaryExpr<'a> {
+pub struct UnaryExpr<'a> {
     operator: Token<'a>,
     right: Box<Expr<'a>>,
 }
 
 impl<'a> UnaryExpr<'a> {
+    #[must_use]
     pub fn new(operator: Token<'a>, right: Expr<'a>) -> UnaryExpr<'a> {
         UnaryExpr {
             operator,
