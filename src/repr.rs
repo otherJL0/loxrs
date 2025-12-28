@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 use crate::token::{LiteralValue, Token};
 
 trait ExprTrait {
@@ -5,29 +6,29 @@ trait ExprTrait {
 }
 
 #[derive(Debug)]
-pub enum Expr<'a> {
-    Binary(BinaryExpr<'a>),
-    Grouping(GroupingExpr<'a>),
-    Literal(LiteralExpr<'a>),
-    Unary(UnaryExpr<'a>),
+pub enum Expr {
+    Binary(BinaryExpr),
+    Grouping(GroupingExpr),
+    Literal(LiteralExpr),
+    Unary(UnaryExpr),
 }
 
-impl ExprTrait for Expr<'_> {
+impl ExprTrait for Expr {
     fn accept<V: Visitor>(&self, visitor: &V) -> String {
         visitor.visit(self)
     }
 }
 
 #[derive(Debug)]
-pub struct BinaryExpr<'a> {
-    left: Box<Expr<'a>>,
-    operator: Token<'a>,
-    right: Box<Expr<'a>>,
+pub struct BinaryExpr {
+    left: Box<Expr>,
+    operator: Token,
+    right: Box<Expr>,
 }
 
-impl<'a> BinaryExpr<'a> {
+impl BinaryExpr {
     #[must_use]
-    pub fn new(left: Expr<'a>, operator: Token<'a>, right: Expr<'a>) -> BinaryExpr<'a> {
+    pub fn new(left: Expr, operator: Token, right: Expr) -> BinaryExpr {
         BinaryExpr {
             left: Box::new(left),
             operator,
@@ -37,38 +38,38 @@ impl<'a> BinaryExpr<'a> {
 }
 
 #[derive(Debug)]
-pub struct GroupingExpr<'a> {
-    expr: Box<Expr<'a>>,
+pub struct GroupingExpr {
+    expr: Box<Expr>,
 }
 
-impl<'a> GroupingExpr<'a> {
+impl GroupingExpr {
     #[must_use]
-    pub fn new(expr: Expr<'a>) -> GroupingExpr<'a> {
+    pub fn new(expr: Expr) -> GroupingExpr {
         GroupingExpr {
             expr: Box::new(expr),
         }
     }
 }
 #[derive(Debug)]
-pub struct LiteralExpr<'a> {
-    value: Option<LiteralValue<'a>>,
+pub struct LiteralExpr {
+    value: Option<LiteralValue>,
 }
 
-impl<'a> LiteralExpr<'a> {
+impl LiteralExpr {
     #[must_use]
-    pub fn new(value: Option<LiteralValue<'a>>) -> LiteralExpr<'a> {
+    pub fn new(value: Option<LiteralValue>) -> LiteralExpr {
         LiteralExpr { value }
     }
 }
 #[derive(Debug)]
-pub struct UnaryExpr<'a> {
-    operator: Token<'a>,
-    right: Box<Expr<'a>>,
+pub struct UnaryExpr {
+    operator: Token,
+    right: Box<Expr>,
 }
 
-impl<'a> UnaryExpr<'a> {
+impl UnaryExpr {
     #[must_use]
-    pub fn new(operator: Token<'a>, right: Expr<'a>) -> UnaryExpr<'a> {
+    pub fn new(operator: Token, right: Expr) -> UnaryExpr {
         UnaryExpr {
             operator,
             right: Box::new(right),
