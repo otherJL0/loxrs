@@ -1,4 +1,6 @@
 use core::fmt;
+use itertools::{Itertools, MultiPeek};
+use std::str::Chars;
 
 use crate::{
     token::{LiteralValue, Token, TokenType},
@@ -24,8 +26,8 @@ impl fmt::Display for InvalidCharacterError {
 
 #[derive(Debug)]
 pub struct Lexer<'a> {
-    pub source: &'a str,
-    pub tokens: Vec<Token<'a>>,
+    pub source: MultiPeek<Chars<'a>>,
+    pub tokens: Vec<Token>,
     line: usize,
     current: usize,
     start: usize,
@@ -35,112 +37,102 @@ impl<'a> Lexer<'a> {
     #[must_use]
     pub fn new(source: &'a str) -> Lexer<'a> {
         Lexer {
-            source,
+            source: source.chars().multipeek(),
             tokens: vec![],
             line: 1,
             current: 0,
             start: 0,
         }
     }
-    fn lookahead(&self, offset: usize) -> Option<char> {
-        self.source[self.current + offset..].chars().next()
-    }
-
-    fn is_at_end(&self) -> bool {
-        self.current >= self.source.len()
-    }
-
-    fn advance(&mut self) -> Option<char> {
-        let c = self.lookahead(0)?;
-        self.current += 1;
-        Some(c)
-    }
 
     /// # Errors
     ///
     /// Will return `Err` if an invalid character is detected
     pub fn scan_tokens(&mut self) -> Result<&[Token], InvalidCharacterError> {
-        while !self.is_at_end() {
+        while self.source.peek().is_some() {
             self.start = self.current;
             self.scan_token()?;
         }
         self.tokens.push(Token {
             token_type: TokenType::Eof,
-            lexeme: "",
             literal: None,
             line: self.line,
         });
         Ok(&self.tokens)
     }
 
-    fn add_token(&mut self, token_type: TokenType, literal: Option<LiteralValue<'a>>) {
-        let lexeme = &self.source[self.start..self.current];
+    fn add_token(&mut self, token_type: TokenType, literal: Option<LiteralValue>) {
         self.tokens.push(Token {
             token_type,
-            lexeme,
             literal,
             line: self.line,
         });
     }
 
     fn peek_match(&mut self, expected: char) -> bool {
-        if self.is_at_end() || self.lookahead(0).unwrap_or_default() != expected {
-            false
-        } else {
-            self.current += 1;
-            true
+        match self.source.peek() {
+            None => false,
+            Some(ch) => {
+                if *ch != expected {
+                    false
+                } else {
+                    self.source.reset_peek();
+                    self.source.next();
+                    true
+                }
+            }
         }
     }
 
     fn scan_string(&mut self) {
-        while let Some(next_char) = self.lookahead(0)
-            && next_char != '"'
+        let mut value = String::new();
+        while let Some(next_char) = self.source.peek()
+            && *next_char != '"'
         {
-            if next_char == '\n' {
+            if *next_char == '\n' {
                 self.line += 1;
             }
-            self.current += 1;
+            value.push(self.source.next().unwrap());
         }
-        let value = &self.source[self.start + 1..self.current];
-        _ = self.advance();
+        self.source.next();
         self.add_token(TokenType::String, Some(LiteralValue::Text(value)));
     }
 
     fn scan_number(&mut self) {
-        while let Some(next_char) = self.lookahead(0)
+        let mut value = String::new();
+        while let Some(next_char) = self.source.peek()
             && next_char.is_ascii_digit()
         {
-            self.current += 1;
+            value.push(self.source.next().unwrap());
         }
-        if let Some(next_char) = self.lookahead(0) {
-            if next_char == '.'
-                && let Some(next_next_char) = self.lookahead(1)
-                && next_next_char.is_ascii_digit()
-            {
-                self.current += 1;
-            }
+        if let Some(next_char) = self.source.peek()
+            && *next_char == '.'
+            && let Some(next_next_char) = self.source.peek()
+            && next_next_char.is_ascii_digit()
+        {
+            value.push(self.source.next().unwrap());
         }
-        while let Some(next_char) = self.lookahead(0)
+        while let Some(next_char) = self.source.peek()
             && next_char.is_ascii_digit()
         {
-            self.current += 1;
+            value.push(self.source.next().unwrap());
         }
-        let value: f64 = self.source[self.start..self.current]
-            .to_string()
-            .parse()
-            .unwrap();
+        let value: f64 = value.parse().unwrap();
         self.add_token(TokenType::Number, Some(LiteralValue::Number(value)));
     }
 
     fn scan_identifier(&mut self) {
-        while let Some(next_char) = self.lookahead(0) {
-            if !next_char.is_ascii_identifier_char() {
-                break;
+        let text = {
+            let mut text = String::new();
+            while let Some(next_char) = self.source.peek() {
+                if !next_char.is_ascii_identifier_char() {
+                    break;
+                }
+                text.push(self.source.next().unwrap());
             }
-            _ = self.advance();
-        }
-        let text = &self.source[self.start..self.current];
-        let token_type = match text {
+            text
+        };
+        let token_type = match text.as_str() {
             "and" => TokenType::And,
             "class" => TokenType::Class,
             "else" => TokenType::Else,
@@ -163,7 +155,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn scan_token(&mut self) -> Result<(), InvalidCharacterError> {
-        if let Some(c) = self.advance() {
+        if let Some(c) = self.source.next() {
             match c {
                 '(' => self.add_token(TokenType::LeftParen, None),
                 ')' => self.add_token(TokenType::RightParen, None),
@@ -230,8 +222,8 @@ impl<'a> Lexer<'a> {
                 }
                 '/' => {
                     if self.peek_match('/') {
-                        while let Some(next_char) = self.lookahead(0)
-                            && next_char != '\n'
+                        while let Some(next_char) = self.source.peek()
+                            && *next_char != '\n'
                         {
                             self.current += 1;
                         }
